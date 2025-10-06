@@ -1,5 +1,5 @@
 /**** CONFIG ****/
-var EMAIL_TO = 'anastasiyaanastasiya510@gmail.com'; // Email for notifications
+var EMAIL_TO = 'ya.shpileva@kleiber.ru'; // Email for notifications
 var SHEET_NAME = 'clicks'; // Name of the sheet to store data
 var DEDUPE_SECONDS = 10; // Don't send more than 1 email per user within N seconds
 /*****************/
