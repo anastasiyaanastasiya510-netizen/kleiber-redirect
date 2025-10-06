@@ -6,15 +6,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <base target="_top">
   <script>
-    const SCRIPT_URL = 'ВСТАВЬ_СВОЙ_EXEC_URL_ЗДЕСЬ'; // заканчивается на /exec
+    // 👇 ВСТАВЬ СВОЙ URL из деплоя Apps Script (тот, что заканчивается на /exec)
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwgQk9uTRAytqJSLkUM9lGyhndzutW50cnoH4B6h02yDsikHSNfhMa5UI20beuIuEIg/exec;
+    // 👇 Сайт, куда перенаправляем
     const TARGET_URL = 'https://kleiber.ru/cheesecase?utm_source=qr&utm_medium=redirect&utm_campaign=cheesecase_talk';
 
-    // лёгкий GET-пинг (картинка) — не требует CORS и всегда бьёт в doGet
-    try { new Image().src = SCRIPT_URL + '?id=cheesecase_qr&ping=1&ts=' + Date.now(); } catch(e) {}
+    // отправляем данные (тихо, без ожидания ответа)
+    fetch(SCRIPT_URL + '?id=cheesecase_qr&ping=1&ts=' + Date.now(), { mode: 'no-cors' })
+      .catch(() => {});
 
-    // мгновенный редирект
-    window.location.replace(TARGET_URL);
+    // даём 200мс на отправку и делаем редирект
+    setTimeout(() => {
+      window.location.replace(TARGET_URL);
+    }, 200);
   </script>
 </head>
-<body></body>
+<body>
+  <p>Redirecting...</p>
+</body>
 </html>
