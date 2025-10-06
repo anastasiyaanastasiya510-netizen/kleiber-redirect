@@ -7,10 +7,11 @@
   <base target="_top">
 
   <script>
-    // URL твоего скрипта
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyG1Z2QmNxjWIBJ4snDGJ1AgtVCGbUaQV2ThmbIOH3GeNi3tgt1ymeeBqtDRRNhUqp3/exec;
-    // Сайт, куда нужно направить
-    const TARGET_URL = 'https://kleiber.ru/cheesecase?utm_source=presentation&utm_medium=qr&utm_campaign=cheesecase_talk';
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyInxuj_qDTnRlNF8XXvldF0t-e6LGIP0VHv45CG6YD0o2aJ9RLSr0YSLLW9t32enQ/exec';
+  const TARGET_URL = 'https://kleiber.ru/cheesecase?...';
+  try { new Image().src = SCRIPT_URL + '?id=cheesecase_qr&ping=1&ts=' + Date.now(); } catch(e) {}
+  window.location.replace(TARGET_URL);
+</script>
 
     // Фоновая отправка события (не мешает редиректу)
     try {
