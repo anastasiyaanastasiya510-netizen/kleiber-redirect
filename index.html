@@ -5,25 +5,16 @@
   <title>Redirecting...</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <base target="_top">
-
   <script>
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxihubfcTqZOhQPqgL_7rK14WNg_CI0v7s36Ns5i0as9LjpHc8NAjeFXD0GEhaRuVca/exec';
-  const TARGET_URL = 'https://kleiber.ru/cheesecase?utm_source=qr&utm_medium=redirect&utm_campaign=cheesecase_talk';
-  try { new Image().src = SCRIPT_URL + '?id=cheesecase_qr&ping=1&ts=' + Date.now(); } catch(e) {}
-  window.location.replace(TARGET_URL);
-</script>
+    const SCRIPT_URL = 'ВСТАВЬ_СВОЙ_EXEC_URL_ЗДЕСЬ'; // заканчивается на /exec
+    const TARGET_URL = 'https://kleiber.ru/cheesecase?utm_source=qr&utm_medium=redirect&utm_campaign=cheesecase_talk';
 
-    // Фоновая отправка события (не мешает редиректу)
-    try {
-      navigator.sendBeacon(SCRIPT_URL + '?id=cheesecase_qr');
-    } catch(e) {
-      fetch(SCRIPT_URL + '?id=cheesecase_qr', {mode: 'no-cors'}).catch(()=>{});
-    }
+    // лёгкий GET-пинг (картинка) — не требует CORS и всегда бьёт в doGet
+    try { new Image().src = SCRIPT_URL + '?id=cheesecase_qr&ping=1&ts=' + Date.now(); } catch(e) {}
 
-    // Мгновенный редирект
+    // мгновенный редирект
     window.location.replace(TARGET_URL);
   </script>
 </head>
-<body>
-</body>
+<body></body>
 </html>
