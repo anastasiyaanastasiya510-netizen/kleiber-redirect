@@ -1,127 +1,62 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Перенаправление...</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #ffffff;
-        }
-    </style>
-    <!-- Неблокирующий HTML-редирект как дополнительный бэкап -->
-    <noscript>
-        <meta http-equiv="refresh" content="0; url=https://kleiber.ru/cheesecase?utm_source=qr&utm_medium=redirect&utm_campaign=cheesecase_talk">
-        <link rel="canonical" href="https://kleiber.ru/cheesecase?utm_source=qr&utm_medium=redirect&utm_campaign=cheesecase_talk">
-    </noscript>
-</head>
-<body>
-    <a id="manualLink" href="https://kleiber.ru/cheesecase?utm_source=qr&utm_medium=redirect&utm_campaign=cheesecase_talk" style="display:none">Go</a>
-    <script>
-        // Target redirect URL
-        const REDIRECT_URL = 'https://kleiber.ru/cheesecase?utm_source=qr&utm_medium=redirect&utm_campaign=cheesecase_talk';
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwgeklAGvalBy15AyhSyeG2pDsowg_mkm8H1Z4x0QB6-7zS6DHp3pWm6W88v6xzc0uT/exec';
+<script>
+  const REDIRECT_URL = 'https://kleiber.ru/cheesecase?utm_source=qr&utm_medium=redirect&utm_campaign=cheesecase_talk';
+  const SCRIPT_URL   = 'https://script.google.com/macros/s/AKfycbwgeklAGvalBy15AyhSyeG2pDsowg_mkm8H1Z4x0QB6-7zS6DHp3pWm6W88v6xzc0uT/exec';
+  const DEFAULT_CODE = 'cheesecase_qr';
 
-        function getUrlParams() {
-            const params = {};
-            const urlParams = new URLSearchParams(window.location.search);
-            for (const [key, value] of urlParams.entries()) params[key] = value;
-            return params;
-        }
+  function getAllParams() {
+    const out = {};
+    const q = new URLSearchParams(window.location.search);
+    for (const [k, v] of q.entries()) out[k] = v;
+    return out;
+  }
 
-        function collectUserData() {
-            const urlParams = getUrlParams();
-            const data = {
-                timestamp: new Date().toISOString(),
-                userAgent: navigator.userAgent || '',
-                language: navigator.language || '',
-                languages: (navigator.languages || []).join(', '),
-                platform: navigator.platform || '',
-                vendor: navigator.vendor || '',
-                screenWidth: screen.width || 0,
-                screenHeight: screen.height || 0,
-                screenColorDepth: screen.colorDepth || 0,
-                screenPixelDepth: screen.pixelDepth || 0,
-                windowWidth: window.innerWidth || 0,
-                windowHeight: window.innerHeight || 0,
-                devicePixelRatio: window.devicePixelRatio || 1,
-                touchPoints: navigator.maxTouchPoints || 0,
-                cookiesEnabled: navigator.cookieEnabled ? 'Yes' : 'No',
-                doNotTrack: navigator.doNotTrack || '',
-                onLine: navigator.onLine ? 'Yes' : 'No',
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || '',
-                timezoneOffset: new Date().getTimezoneOffset(),
-                referrer: document.referrer || '',
-                currentUrl: window.location.href || '',
-                hardwareConcurrency: navigator.hardwareConcurrency || '',
-                deviceMemory: navigator.deviceMemory || '',
-                connection: navigator.connection ? `${navigator.connection.effectiveType || ''} (${navigator.connection.downlink || ''}Mbps)` : '',
-                isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ? 'Yes' : 'No',
-                os: getOS(),
-                browser: getBrowser(),
-                customParams: JSON.stringify(urlParams)
-            };
-            Object.keys(urlParams).forEach(key => { data['custom_' + key] = urlParams[key]; });
-            return data;
-        }
+  function buildPingUrl() {
+    const params = getAllParams();
+    if (!params.id && !params.code) params.id = DEFAULT_CODE;
+    params.ping = '1';
+    params.ref = document.referrer || '';
+    params.ua = navigator.userAgent || '';
+    params.hitId = String(Date.now()) + '-' + Math.random().toString(36).slice(2, 10); // уникальный id
+    sessionStorage.setItem('hitId', params.hitId); // чтобы сервер мог видеть
+    const usp = new URLSearchParams(params);
+    return SCRIPT_URL + '?' + usp.toString();
+  }
 
-        function getOS() {
-            const ua = navigator.userAgent;
-            if (ua.indexOf('Win') !== -1) return 'Windows';
-            if (ua.indexOf('Mac') !== -1) return 'MacOS';
-            if (ua.indexOf('Linux') !== -1) return 'Linux';
-            if (ua.indexOf('Android') !== -1) return 'Android';
-            if (ua.indexOf('iOS') !== -1 || ua.indexOf('iPhone') !== -1 || ua.indexOf('iPad') !== -1) return 'iOS';
-            return 'Unknown';
-        }
+  function sendPingOnce(url) {
+    if (sessionStorage.getItem('redirectPingSent') === '1') return; // защита от повторов в этой сессии
+    sessionStorage.setItem('redirectPingSent', '1');
 
-        function getBrowser() {
-            const ua = navigator.userAgent;
-            if (ua.indexOf('Firefox') !== -1) return 'Firefox';
-            if (ua.indexOf('Chrome') !== -1 && ua.indexOf('Edg') === -1) return 'Chrome';
-            if (ua.indexOf('Safari') !== -1 && ua.indexOf('Chrome') === -1) return 'Safari';
-            if (ua.indexOf('Edg') !== -1) return 'Edge';
-            if (ua.indexOf('Opera') !== -1 || ua.indexOf('OPR') !== -1) return 'Opera';
-            return 'Unknown';
-        }
+    // Выбираем ОДИН транспорт: sendBeacon > fetch > img
+    if (navigator.sendBeacon) {
+      const blob = new Blob([], { type: 'text/plain' });
+      navigator.sendBeacon(url, blob);
+      return;
+    }
+    if (window.fetch) {
+      fetch(url, { method: 'GET', mode: 'no-cors', keepalive: true }).catch(()=>{});
+      return;
+    }
+    const img = new Image();
+    img.referrerPolicy = 'no-referrer';
+    img.src = url;
+  }
 
-        async function sendData() {
-            const userData = collectUserData();
-            const params = new URLSearchParams(userData);
-            const urlWithParams = `${SCRIPT_URL}?${params.toString()}`;
-            try {
-                const img = new Image();
-                img.referrerPolicy = 'no-referrer';
-                img.src = urlWithParams;
-                fetch(urlWithParams, { method: 'GET', mode: 'no-cors' }).catch(() => {});
-            } catch (error) {
-                console.error('Error sending data:', error);
-            }
-        }
+  function redirectNow() {
+    try {
+      window.location.href = REDIRECT_URL;
+    } catch (_) {
+      try { window.location.replace(REDIRECT_URL); }
+      catch (_) {
+        const a = document.getElementById('manualLink');
+        if (a) a.click();
+      }
+    }
+  }
 
-        function redirect() {
-            try {
-                window.location.replace(REDIRECT_URL);
-            } catch {
-                try {
-                    window.location.href = REDIRECT_URL;
-                } catch {
-                    document.getElementById('manualLink').click();
-                }
-            }
-        }
-
-        (async function() {
-            try {
-                await sendData();
-                setTimeout(redirect, 800);
-            } catch (error) {
-                console.error('Error:', error);
-                setTimeout(redirect, 1000);
-            }
-        })();
-    </script>
-</body>
-</html>
+  (function main() {
+    const pingUrl = buildPingUrl();
+    sendPingOnce(pingUrl);
+    setTimeout(redirectNow, 800);
+    setTimeout(redirectNow, 3000); // бэкап
+  })();
+</script>
