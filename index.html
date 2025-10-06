@@ -2,25 +2,27 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <title>Redirect…</title>
+  <title>Redirecting...</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <base target="_top">
-  <script>
-    // ВСТАВЬ СЮДА свой URL из Apps Script (тот, что оканчивается на /exec)
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwY1JF72uFfS5BVEg4mnk7FVfXb_9Y-EuW9olIhIglhxXNeNMrFxlsdSKVi_wWisKGg/exec;
 
-    // Куда отправлять пользователя
+  <script>
+    // URL твоего скрипта
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxv2t8WdAyi3hOGpI--zYFdCkSbg3doGYdKlzE-wIaFOXYM3eawg7QrlENoG7vCWYWX/exec';
+    // Сайт, куда нужно направить
     const TARGET_URL = 'https://kleiber.ru/cheesecase?utm_source=presentation&utm_medium=qr&utm_campaign=cheesecase_talk';
 
-    // Сначала шлем событие, потом сразу редиректим
+    // Фоновая отправка события (не мешает редиректу)
     try {
-      fetch(SCRIPT_URL + '?id=cheesecase_qr',{mode:'no-cors'}).catch(()=>{});
-    } catch(e) {}
-    // железно уводим на сайт
-    setTimeout(function(){ window.location.href = TARGET_URL; }, 50);
+      navigator.sendBeacon(SCRIPT_URL + '?id=cheesecase_qr');
+    } catch(e) {
+      fetch(SCRIPT_URL + '?id=cheesecase_qr', {mode: 'no-cors'}).catch(()=>{});
+    }
+
+    // Мгновенный редирект
+    window.location.replace(TARGET_URL);
   </script>
 </head>
 <body>
-  Перенаправление… Если не открылось, <a href="https://kleiber.ru/cheesecase?utm_source=presentation&utm_medium=qr&utm_campaign=cheesecase_talk">нажмите сюда</a>.
 </body>
 </html>
